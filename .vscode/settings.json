@@ -1,0 +1,19 @@
+{
+  "makefile.configurations": [
+    {
+      "name": "Default",
+      "makeArgs": []
+    },
+    {
+      "name": "Print make version",
+      "makeArgs": ["--version"]
+    }
+  ],
+  "makefile.launchConfigurations": [
+    {
+      "cwd": "/Users/max/Developer/gero-vm/build",
+      "binaryPath": "/Users/max/Developer/gero-vm/build/gero-vm",
+      "binaryArgs": []
+    }
+  ]
+}
