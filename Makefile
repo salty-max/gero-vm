@@ -15,8 +15,8 @@ default: gero-vm.cpp
 gero-vm.cpp:
 		$(GCC) $(CFLAGS) $(SRC)/gero-vm.cpp
 
-test: gero-vm.cpp
-		$(TARGET)/gero-vm $(ARGS)
+test:
+		echo "No testing yet"
 
 clean:
 		$(RM) $(TARGET)/*
