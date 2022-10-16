@@ -1,5 +1,5 @@
 /**
- * Instruction set for Gero VM.
+ * Instruction set for Jelly VM.
  */
 
 #ifndef __OpCode_h

@@ -11,8 +11,8 @@
   ],
   "makefile.launchConfigurations": [
     {
-      "cwd": "/Users/max/Developer/gero-vm/build",
-      "binaryPath": "/Users/max/Developer/gero-vm/build/gero-vm",
+      "cwd": "/Users/max/Developer/jelly-vm/build",
+      "binaryPath": "/Users/max/Developer/jelly-vm/build/jelly-vm",
       "binaryArgs": []
     }
   ]

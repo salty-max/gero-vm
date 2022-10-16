@@ -1,4 +1,4 @@
-# Gero Language
+# Jelly Language
 
 A dynamic programming language with simple syntax, functional heart and OOP support
 

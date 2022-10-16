@@ -1,5 +1,5 @@
-#ifndef __GeroVM_h
-#define __GeroVM_h
+#ifndef __JellyVM_h
+#define __JellyVM_h
 
 #include <string>
 #include <vector>
@@ -13,11 +13,11 @@
 #define READ_BYTE() *ip++
 
 /**
- * Gero Virtual Machine.
+ * Jelly Virtual Machine.
  */
-class GeroVM {
+class JellyVM {
 public:
-  GeroVM() {}
+  JellyVM() {}
 
   /**
    * Executes a program.
@@ -26,7 +26,7 @@ public:
     // 1. Parse the program.
     // auto ast = parser->parse(program)
 
-    // 2.Compile program to Gero bytecode.
+    // 2.Compile program to Jelly bytecode.
     // code = compiler->compile(ast)
     code = {OP_HALT};
 

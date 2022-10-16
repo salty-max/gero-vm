@@ -1,10 +1,10 @@
-#include "vm/GeroVM.h"
+#include "vm/JellyVM.h"
 
 /**
- * Gero VM main executable.
+ * Jelly VM main executable.
  */
 int main(int argc, char const *argv[]) {
-  GeroVM vm;
+  JellyVM vm;
 
   vm.exec(R"(
     42
