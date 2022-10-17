@@ -2,8 +2,8 @@
  * Instruction set for Jelly VM.
  */
 
-#ifndef __OpCode_h
-#define __OpCode_h
+#ifndef OpCode_h
+#define OpCode_h
 
 /**
  * Stops the program.

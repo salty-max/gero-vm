@@ -1,9 +1,10 @@
-#ifndef __JellyVM_h
-#define __JellyVM_h
+#ifndef JellyVM_h
+#define JellyVM_h
 
 #include <string>
 #include <vector>
 
+#include "../Logger.h"
 #include "../bytecode/OpCode.h"
 
 /**
@@ -41,9 +42,12 @@ public:
    */
   void eval() {
     for (;;) {
-      switch (READ_BYTE()) {
+      auto opcode = READ_BYTE();
+      switch (opcode) {
       case OP_HALT:
         return;
+      default:
+        DIE << "Unknown opcode: " << std::hex << (int)opcode;
       }
     }
   }

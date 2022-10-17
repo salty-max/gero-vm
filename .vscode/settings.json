@@ -14,6 +14,7 @@
       "cwd": "/Users/max/Developer/jelly-vm/build",
       "binaryPath": "/Users/max/Developer/jelly-vm/build/jelly-vm",
       "binaryArgs": []
-    }
-  ]
+    },
+  ],
+  "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"
 }
