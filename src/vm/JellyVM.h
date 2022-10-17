@@ -7,6 +7,7 @@
 
 #include "../Logger.h"
 #include "../bytecode/OpCode.h"
+#include "../compiler/JellyCompiler.h"
 #include "../parser/JellyParser.h"
 #include "./JellyValue.h"
 
@@ -21,7 +22,7 @@ using syntax::JellyParser;
 /**
  * Gets a constant from the pool.
  */
-#define GET_CONST() constants[READ_BYTE()]
+#define GET_CONST() co->constants[READ_BYTE()]
 
 /**
  * Stack top (stack overflox after exceeding)
@@ -43,7 +44,9 @@ using syntax::JellyParser;
  */
 class JellyVM {
 public:
-  JellyVM() : parser(std::make_unique<JellyParser>()) {}
+  JellyVM()
+      : parser(std::make_unique<JellyParser>()),
+        compiler(std::make_unique<JellyCompiler>()) {}
 
   /**
    * Pushes a value onto the stack.
@@ -76,17 +79,12 @@ public:
   JellyValue exec(const std::string &program) {
     // 1. Parse the program.
     auto ast = parser->parse(program);
-    log(ast.number);
 
     // 2.Compile program to Jelly bytecode.
-    // code = compiler->compile(ast);
-    constants.push_back(ALLOC_STRING("Hello "));
-    constants.push_back(ALLOC_STRING("World!"));
-
-    code = {OP_CONST, 0, OP_CONST, 1, OP_ADD, OP_HALT};
+    co = compiler->compile(ast);
 
     // Set instruction pointer to the beginning.
-    ip = &code[0];
+    ip = &co->code[0];
 
     // Set stack pointer to the beginning.
     sp = &stack[0];
@@ -100,14 +98,17 @@ public:
   JellyValue eval() {
     for (;;) {
       auto opcode = READ_BYTE();
+
       switch (opcode) {
       case OP_HALT:
         return pop();
+
       // ------------------------
       // Constants
       case OP_CONST:
         push(GET_CONST());
         break;
+
       // ------------------------
       // Math ops
       case OP_ADD: {
@@ -141,6 +142,7 @@ public:
         BINARY_OP(/);
         break;
       }
+
       default:
         DIE << "Unknown opcode: " << std::hex << (int)opcode;
       }
@@ -151,6 +153,11 @@ public:
    * Parser.
    */
   std::unique_ptr<JellyParser> parser;
+
+  /**
+   * Compiler.
+   */
+  std::unique_ptr<JellyCompiler> compiler;
 
   /**
    * Instruction pointer (aka Program Counter)
@@ -168,13 +175,9 @@ public:
   std::array<JellyValue, STACK_LIMIT> stack;
 
   /**
-   * Constant pool.
+   * Code object.
    */
-  std::vector<JellyValue> constants;
-  /**
-   * Bytecode.
-   */
-  std::vector<uint8_t> code;
+  CodeObject *co;
 };
 
 #endif

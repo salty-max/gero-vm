@@ -14,7 +14,7 @@ enum class JellyValueType { NUMBER, OBJECT };
 /**
  * Object type.
  */
-enum class ObjectType { STRING };
+enum class ObjectType { STRING, CODE };
 
 /**
  * Base Object.
@@ -44,6 +44,27 @@ struct JellyValue {
   };
 };
 
+/**
+ * Code object.
+ */
+struct CodeObject : public Object {
+  CodeObject(const std::string &name) : Object(ObjectType::CODE), name(name) {}
+  /**
+   * Name of the unit (usually function name).
+   */
+  std::string name;
+
+  /**
+   * Constant pool.
+   */
+  std::vector<JellyValue> constants;
+
+  /**
+   * Bytecode.
+   */
+  std::vector<uint8_t> code;
+};
+
 // ------------------------------------------------------------
 // Constructors
 #define NUMBER(value) ((JellyValue){JellyValueType::NUMBER, .number = value})
@@ -52,12 +73,19 @@ struct JellyValue {
   ((JellyValue){JellyValueType::OBJECT,                                        \
                 .object = (Object *)new StringObject(value)})
 
+#define ALLOC_CODE(name)                                                       \
+  ((JellyValue){JellyValueType::OBJECT,                                        \
+                .object = (Object *)new CodeObject(name)})
+
 // ------------------------------------------------------------
 // Accessors
 #define AS_NUMBER(jellyValue) ((double)(jellyValue).number)
 #define AS_OBJECT(jellyValue) ((Object *)(jellyValue).object)
+
 #define AS_STRING(jellyValue) ((StringObject *)(jellyValue).object)
 #define AS_CPPSTRING(jellyValue) (AS_STRING(jellyValue)->string)
+
+#define AS_CODE(jellyValue) ((CodeObject *)(jellyValue).object)
 
 // ------------------------------------------------------------
 // Testers
@@ -68,5 +96,6 @@ struct JellyValue {
   (IS_OBJECT(jellyValue) && AS_OBJECT(jellyValue)->type == objectType)
 
 #define IS_STRING(jellyValue) IS_OBJECT_TYPE(jellyValue, ObjectType::STRING)
+#define IS_CODE(jellyValue) IS_OBJECT_TYPE(jellyValue, ObjectType::CODE)
 
 #endif
