@@ -76,10 +76,9 @@ public:
 
     // 2.Compile program to Jelly bytecode.
     // code = compiler->compile(ast)
-    constants.push_back(NUMBER(2));
-    constants.push_back(NUMBER(3));
-    constants.push_back(NUMBER(5));
-    code = {OP_CONST, 0, OP_CONST, 1, OP_ADD, OP_CONST, 2, OP_MUL, OP_HALT};
+    constants.push_back(ALLOC_STRING("Hello World!"));
+
+    code = {OP_CONST, 0, OP_HALT};
 
     // Set instruction pointer to the beginning.
     ip = &code[0];
