@@ -7,7 +7,10 @@
 
 #include "../Logger.h"
 #include "../bytecode/OpCode.h"
+#include "../parser/JellyParser.h"
 #include "./JellyValue.h"
+
+using syntax::JellyParser;
 
 /**
  * Reads the current byte in the bytecode
@@ -40,7 +43,7 @@
  */
 class JellyVM {
 public:
-  JellyVM() {}
+  JellyVM() : parser(std::make_unique<JellyParser>()) {}
 
   /**
    * Pushes a value onto the stack.
@@ -72,10 +75,11 @@ public:
    */
   JellyValue exec(const std::string &program) {
     // 1. Parse the program.
-    // auto ast = parser->parse(program)
+    auto ast = parser->parse(program);
+    log(ast.number);
 
     // 2.Compile program to Jelly bytecode.
-    // code = compiler->compile(ast)
+    // code = compiler->compile(ast);
     constants.push_back(ALLOC_STRING("Hello "));
     constants.push_back(ALLOC_STRING("World!"));
 
@@ -142,6 +146,11 @@ public:
       }
     }
   }
+
+  /**
+   * Parser.
+   */
+  std::unique_ptr<JellyParser> parser;
 
   /**
    * Instruction pointer (aka Program Counter)

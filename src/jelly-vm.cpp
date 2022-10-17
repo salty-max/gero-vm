@@ -10,7 +10,7 @@ int main(int argc, char const *argv[]) {
   JellyVM vm;
 
   auto result = vm.exec(R"(
-    42 
+    (+ "Hello " "World!")
   )");
 
   log(AS_CPPSTRING(result));
