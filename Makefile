@@ -4,7 +4,7 @@
 SRC=./src
 TARGET=./build
 GCC = clang++
-CFLAGS = -std=c++17 -Wall -ggdb3 -o $(TARGET)/jelly-vm
+CFLAGS = -std=c++20 -Wall -ggdb3 -o $(TARGET)/jelly-vm
 ARGS = 101
 RM = rm -rf
 
