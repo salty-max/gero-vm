@@ -10,10 +10,10 @@ int main(int argc, char const *argv[]) {
   JellyVM vm;
 
   auto result = vm.exec(R"(
-    42
+    42 
   )");
 
-  log(ASNUMBER(result));
+  log(AS_NUMBER(result));
 
   std::cout << "👌 All done!\n";
 

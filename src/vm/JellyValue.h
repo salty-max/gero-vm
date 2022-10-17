@@ -26,6 +26,6 @@ struct JellyValue {
 
 // ------------------------------------------------------------
 // Accessors
-#define ASNUMBER(jellyValue) ((double)(jellyValue).number)
+#define AS_NUMBER(jellyValue) ((double)(jellyValue).number)
 
 #endif

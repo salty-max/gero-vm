@@ -26,6 +26,16 @@
 #define STACK_LIMIT 512
 
 /**
+ * Binary operation.
+ */
+#define BINARY_OP(op)                                                          \
+  do {                                                                         \
+    auto op2 = AS_NUMBER(pop());                                               \
+    auto op1 = AS_NUMBER(pop());                                               \
+    push(NUMBER(op1 op op2));                                                  \
+  } while (false)
+
+/**
  * Jelly Virtual Machine.
  */
 class JellyVM {
@@ -49,7 +59,7 @@ public:
    */
   JellyValue pop() {
     if (sp == stack.begin()) {
-      DIE << "pop(): empty stack.\n";
+      DIE << "pop(): Stack underflow.\n";
     }
     // As the stack pointer points to the free slot
     // Decrement it to get to the top of th stack.
@@ -66,8 +76,10 @@ public:
 
     // 2.Compile program to Jelly bytecode.
     // code = compiler->compile(ast)
-    constants.push_back(NUMBER(42));
-    code = {OP_CONST, 0, OP_HALT};
+    constants.push_back(NUMBER(2));
+    constants.push_back(NUMBER(3));
+    constants.push_back(NUMBER(5));
+    code = {OP_CONST, 0, OP_CONST, 1, OP_ADD, OP_CONST, 2, OP_MUL, OP_HALT};
 
     // Set instruction pointer to the beginning.
     ip = &code[0];
@@ -92,6 +104,24 @@ public:
       case OP_CONST:
         push(GET_CONST());
         break;
+      // ------------------------
+      // Math ops
+      case OP_ADD: {
+        BINARY_OP(+);
+        break;
+      }
+      case OP_SUB: {
+        BINARY_OP(-);
+        break;
+      }
+      case OP_MUL: {
+        BINARY_OP(*);
+        break;
+      }
+      case OP_DIV: {
+        BINARY_OP(/);
+        break;
+      }
       default:
         DIE << "Unknown opcode: " << std::hex << (int)opcode;
       }
