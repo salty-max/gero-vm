@@ -46,7 +46,6 @@ struct JellyValue {
 
 // ------------------------------------------------------------
 // Constructors
-
 #define NUMBER(value) ((JellyValue){JellyValueType::NUMBER, .number = value})
 
 #define ALLOC_STRING(value)                                                    \
@@ -56,8 +55,18 @@ struct JellyValue {
 // ------------------------------------------------------------
 // Accessors
 #define AS_NUMBER(jellyValue) ((double)(jellyValue).number)
-
+#define AS_OBJECT(jellyValue) ((Object *)(jellyValue).object)
 #define AS_STRING(jellyValue) ((StringObject *)(jellyValue).object)
 #define AS_CPPSTRING(jellyValue) (AS_STRING(jellyValue)->string)
+
+// ------------------------------------------------------------
+// Testers
+#define IS_NUMBER(jellyValue) ((jellyValue).type == JellyValueType::NUMBER)
+#define IS_OBJECT(jellyValue) ((jellyValue).type == JellyValueType::OBJECT)
+
+#define IS_OBJECT_TYPE(jellyValue, objectType)                                 \
+  (IS_OBJECT(jellyValue) && AS_OBJECT(jellyValue)->type == objectType)
+
+#define IS_STRING(jellyValue) IS_OBJECT_TYPE(jellyValue, ObjectType::STRING)
 
 #endif
