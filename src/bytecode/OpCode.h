@@ -24,4 +24,9 @@
 #define OP_DIV 0x05
 #define OP_MOD 0x06
 
+/**
+ * Comparisons.
+ */
+#define OP_COMPARE 0x07
+
 #endif

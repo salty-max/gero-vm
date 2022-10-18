@@ -1,16 +1,16 @@
 #include "vm/JellyVM.h"
 #include "gtest/gtest.h"
 
-class ExpressionTest : public ::testing::Test {
+class ComparisonTest : public ::testing::Test {
 protected:
   // You can remove any or all of the following functions if their bodies would
   // be empty.
 
-  ExpressionTest() {
+  ComparisonTest() {
     // You can do set-up work for each test here.
   }
 
-  ~ExpressionTest() override {
+  ~ComparisonTest() override {
     // You can do clean-up work that doesn't throw exceptions here.
   }
 
@@ -31,42 +31,62 @@ protected:
   // for Foo.
 };
 
-TEST(ExpressionTest, Number) {
+TEST(ComparisonTest, LessThan) {
   JellyVM vm;
 
   auto result = vm.exec(R"(
-    42
-  )");
-
-  EXPECT_EQ(AS_NUMBER(result), 42);
-}
-
-TEST(ExpressionTest, Boolean) {
-  JellyVM vm;
-
-  auto result = vm.exec(R"(
-    true
+    (< 1 2)
   )");
 
   EXPECT_EQ(AS_BOOLEAN(result), true);
 }
 
-TEST(ExpressionTest, String) {
+TEST(ComparisonTest, GreaterThan) {
   JellyVM vm;
 
   auto result = vm.exec(R"(
-    "Hello World!"
+    (> 1 2)
   )");
 
-  EXPECT_EQ(AS_CPPSTRING(result), "Hello World!");
+  EXPECT_EQ(AS_BOOLEAN(result), false);
 }
 
-TEST(ExpressionTest, List) {
+TEST(ComparisonTest, Equal) {
   JellyVM vm;
 
   auto result = vm.exec(R"(
-    (+ 1 2)
+    (== 1 2)
   )");
 
-  EXPECT_EQ(AS_NUMBER(result), 3);
+  EXPECT_EQ(AS_BOOLEAN(result), false);
+}
+
+TEST(ComparisonTest, LessThanOrEqual) {
+  JellyVM vm;
+
+  auto result = vm.exec(R"(
+    (<= 1 2)
+  )");
+
+  EXPECT_EQ(AS_BOOLEAN(result), true);
+}
+
+TEST(ComparisonTest, GreaterThanOrEqual) {
+  JellyVM vm;
+
+  auto result = vm.exec(R"(
+    (>= 1 2)
+  )");
+
+  EXPECT_EQ(AS_BOOLEAN(result), false);
+}
+
+TEST(ComparisonTest, NotEqual) {
+  JellyVM vm;
+
+  auto result = vm.exec(R"(
+    (!= 1 2)
+  )");
+
+  EXPECT_EQ(AS_BOOLEAN(result), true);
 }

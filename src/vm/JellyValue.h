@@ -9,7 +9,7 @@
 /**
  * Jelly value type.
  */
-enum class JellyValueType { NUMBER, OBJECT };
+enum class JellyValueType { NUMBER, BOOLEAN, OBJECT };
 
 /**
  * Object type.
@@ -40,6 +40,7 @@ struct JellyValue {
   JellyValueType type;
   union {
     double number;
+    bool boolean;
     Object *object;
   };
 };
@@ -68,6 +69,7 @@ struct CodeObject : public Object {
 // ------------------------------------------------------------
 // Constructors
 #define NUMBER(value) ((JellyValue){JellyValueType::NUMBER, .number = value})
+#define BOOLEAN(value) ((JellyValue){JellyValueType::BOOLEAN, .boolean = value})
 
 #define ALLOC_STRING(value)                                                    \
   ((JellyValue){JellyValueType::OBJECT,                                        \
@@ -80,6 +82,7 @@ struct CodeObject : public Object {
 // ------------------------------------------------------------
 // Accessors
 #define AS_NUMBER(jellyValue) ((double)(jellyValue).number)
+#define AS_BOOLEAN(jellyValue) ((bool)(jellyValue).boolean)
 #define AS_OBJECT(jellyValue) ((Object *)(jellyValue).object)
 
 #define AS_STRING(jellyValue) ((StringObject *)(jellyValue).object)
@@ -90,6 +93,7 @@ struct CodeObject : public Object {
 // ------------------------------------------------------------
 // Testers
 #define IS_NUMBER(jellyValue) ((jellyValue).type == JellyValueType::NUMBER)
+#define IS_BOOLEAN(jellyValue) ((jellyValue).type == JellyValueType::BOOLEAN)
 #define IS_OBJECT(jellyValue) ((jellyValue).type == JellyValueType::OBJECT)
 
 #define IS_OBJECT_TYPE(jellyValue, objectType)                                 \
@@ -104,6 +108,8 @@ struct CodeObject : public Object {
 std::string jellyValueToTypeString(const JellyValue &jellyValue) {
   if (IS_NUMBER(jellyValue)) {
     return "NUMBER";
+  } else if (IS_BOOLEAN(jellyValue)) {
+    return "BOOLEAN";
   } else if (IS_STRING(jellyValue)) {
     return "STRING";
   } else if (IS_CODE(jellyValue)) {
@@ -123,6 +129,8 @@ std::string jellyValueToConstantString(const JellyValue &jellyValue) {
 
   if (IS_NUMBER(jellyValue)) {
     ss << jellyValue.number;
+  } else if (IS_BOOLEAN(jellyValue)) {
+    ss << (jellyValue.boolean == true ? "true" : "false");
   } else if (IS_STRING(jellyValue)) {
     ss << '"' << AS_CPPSTRING(jellyValue) << '"';
   } else if (IS_CODE(jellyValue)) {

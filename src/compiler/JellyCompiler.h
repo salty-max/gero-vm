@@ -5,6 +5,9 @@
 #ifndef JellyCompiler_h
 #define JellyCompiler_h
 
+#include <map>
+#include <string>
+
 #include "../Logger.h"
 #include "../bytecode/OpCode.h"
 #include "../parser/JellyParser.h"
@@ -86,8 +89,16 @@ public:
      * Symbols (variables, operators).
      */
     case ExpType::SYMBOL:
-      // TODO
-      DIE << "ExpType::SYMBOL: uninplemented.";
+      /**
+       * Boolean.
+       */
+      if (exp.string == "true" || exp.string == "false") {
+        emit(OP_CONST);
+        emit(booleanConstIdx(exp.string == "true" ? true : false));
+      } else {
+        // TODO:
+        DIE << "ExpType::SYMBOL: Unimplemented.";
+      }
       break;
 
     /**
@@ -104,7 +115,8 @@ public:
         auto op = tag.string;
 
         /**
-         * Binary math operations
+         * -------------------------------
+         * Binary math operations (+ 1 2)
          */
         if (op == "+") {
           GEN_BINARY_OP(OP_ADD);
@@ -117,6 +129,17 @@ public:
         } else if (op == "%") {
           GEN_BINARY_OP(OP_MOD);
         }
+
+        /**
+         * -------------------------------
+         * Compare operations (> 5 10)
+         */
+        else if (compareOps_.count(op) != 0) {
+          gen(exp.list[1]);
+          gen(exp.list[2]);
+          emit(OP_COMPARE);
+          emit(compareOps_[op]);
+        }
       }
       break;
     }
@@ -128,6 +151,14 @@ private:
    */
   size_t numericConstIdx(double value) {
     ALLOC_CONST(IS_NUMBER, AS_NUMBER, NUMBER, value);
+    return co->constants.size() - 1;
+  }
+
+  /**
+   * Allocates a boolean constant.
+   */
+  size_t booleanConstIdx(bool value) {
+    ALLOC_CONST(IS_BOOLEAN, AS_BOOLEAN, BOOLEAN, value);
     return co->constants.size() - 1;
   }
 
@@ -148,6 +179,18 @@ private:
    * Compiling code object.
    */
   CodeObject *co;
+
+  /**
+   * Compare ops map.
+   */
+  static std::map<std::string, uint8_t> compareOps_;
+};
+
+/**
+ * Compare ops map.
+ */
+std::map<std::string, u_int8_t> JellyCompiler::compareOps_ = {
+    {"<", 0}, {">", 1}, {"==", 2}, {"<=", 3}, {">=", 4}, {"!=", 5},
 };
 
 #endif
