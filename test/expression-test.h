@@ -50,3 +50,13 @@ TEST(ExpressionTest, String) {
 
   EXPECT_EQ(AS_CPPSTRING(result), "Hello World!");
 }
+
+TEST(ExpressionTest, List) {
+  JellyVM vm;
+
+  auto result = vm.exec(R"(
+    (+ 1 2)
+  )");
+
+  EXPECT_EQ(AS_NUMBER(result), 3);
+}

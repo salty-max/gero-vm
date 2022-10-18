@@ -98,4 +98,49 @@ struct CodeObject : public Object {
 #define IS_STRING(jellyValue) IS_OBJECT_TYPE(jellyValue, ObjectType::STRING)
 #define IS_CODE(jellyValue) IS_OBJECT_TYPE(jellyValue, ObjectType::CODE)
 
+/**
+ * String representation used in constants for debug.
+ */
+std::string jellyValueToTypeString(const JellyValue &jellyValue) {
+  if (IS_NUMBER(jellyValue)) {
+    return "NUMBER";
+  } else if (IS_STRING(jellyValue)) {
+    return "STRING";
+  } else if (IS_CODE(jellyValue)) {
+    return "CODE";
+  } else {
+    DIE << "jellyValueToTypeString: unknown type " << (int)jellyValue.type;
+  }
+
+  return ""; // Unreachable
+}
+
+/**
+ * String representation used in constants for debug.
+ */
+std::string jellyValueToConstantString(const JellyValue &jellyValue) {
+  std::stringstream ss;
+
+  if (IS_NUMBER(jellyValue)) {
+    ss << jellyValue.number;
+  } else if (IS_STRING(jellyValue)) {
+    ss << '"' << AS_CPPSTRING(jellyValue) << '"';
+  } else if (IS_CODE(jellyValue)) {
+    auto code = AS_CODE(jellyValue);
+    ss << "code " << code << ": " << code->name;
+  } else {
+    DIE << "jellyValueToConstantString: unknown type " << (int)jellyValue.type;
+  }
+
+  return ss.str();
+}
+
+/**
+ * Output stream.
+ */
+std::ostream &operator<<(std::ostream &os, const JellyValue &jellyValue) {
+  return os << "JellyValue (" << jellyValueToTypeString(jellyValue)
+            << "): " << jellyValueToConstantString(jellyValue);
+}
+
 #endif

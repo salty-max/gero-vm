@@ -10,10 +10,10 @@ int main(int argc, char const *argv[]) {
   JellyVM vm;
 
   auto result = vm.exec(R"(
-    (% (+ (* 6 5) 2) 5)
+    (+ "Hello " "World!")
   )");
 
-  log(AS_NUMBER(result));
+  log(result);
 
   std::cout << "👌 All done!\n";
 
