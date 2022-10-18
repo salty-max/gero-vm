@@ -17,18 +17,18 @@ jobs:
         #     runner_path: "D:/a",
         #     environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
         #   }
-        - {
-            name: "Windows Latest MinGW", artifact: "Windows-MinGW.tar.xz",
-            os: windows-latest,
-            runner_path: "D:/a",
-            build_type: "Release", cc: "gcc", cxx: "g++"
-          }
-        - {
-            name: "Ubuntu Latest GCC", artifact: "Linux.tar.xz",
-            os: ubuntu-latest,
-            runner_path: "/home/runner/work",
-            build_type: "Release", cc: "gcc", cxx: "g++"
-          }
+        # - {
+        #     name: "Windows Latest MinGW", artifact: "Windows-MinGW.tar.xz",
+        #     os: windows-latest,
+        #     runner_path: "D:/a",
+        #     build_type: "Release", cc: "gcc", cxx: "g++"
+        #   }
+        # - {
+        #     name: "Ubuntu Latest GCC", artifact: "Linux.tar.xz",
+        #     os: ubuntu-latest,
+        #     runner_path: "/home/runner/work",
+        #     build_type: "Release", cc: "gcc", cxx: "g++"
+        #   }
         - {
             name: "macOS Latest Clang", artifact: "macOS.tar.xz",
             os: macos-latest,
