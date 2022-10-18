@@ -10,7 +10,7 @@ int main(int argc, char const *argv[]) {
   JellyVM vm;
 
   auto result = vm.exec(R"(
-    (<= 1 2)
+    (if (<= 1 2) 1)
   )");
 
   log(result);

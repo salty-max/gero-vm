@@ -3,6 +3,7 @@
 #include "binary-math-test.h"
 #include "comparison-test.h"
 #include "expression-test.h"
+#include "if-branch-test.h"
 #include "string-test.h"
 
 int main(int argc, char *argv[]) {
