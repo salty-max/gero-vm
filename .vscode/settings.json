@@ -12,7 +12,7 @@
   "makefile.launchConfigurations": [
     {
       "cwd": "/Users/max/Developer/jelly-vm/build",
-      "binaryPath": "/Users/max/Developer/jelly-vm/build/jelly-vm",
+      "binaryPath": "/Users/max/Developer/jelly-vm/build/jelly",
       "binaryArgs": []
     },
   ],

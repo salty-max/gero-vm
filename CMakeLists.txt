@@ -1,21 +1,20 @@
 cmake_minimum_required(VERSION 3.10)
-project(jelly_vm)
+project(jelly)
 
 set(CMAKE_CXX_STANDARD 20)
 
 include(FetchContent)
 FetchContent_Declare(
   googletest
-
-  # Specify the commit you depend on and update it regularly.
-  URL https://github.com/google/googletest/archive/5376968f6948923e2411081fd9372e71a59d8e77.zip
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG release-1.12.1
 )
 
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-include_directories(src)
+include_directories(src test)
 
 add_subdirectory(src)
-add_subdirectory(__tests__)
+add_subdirectory(test)

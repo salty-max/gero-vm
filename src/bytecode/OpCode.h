@@ -22,5 +22,6 @@
 #define OP_SUB 0x03
 #define OP_MUL 0x04
 #define OP_DIV 0x05
+#define OP_MOD 0x06
 
 #endif

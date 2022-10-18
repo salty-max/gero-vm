@@ -142,6 +142,12 @@ public:
         BINARY_OP(/);
         break;
       }
+      case OP_MOD: {
+        auto op2 = (int)(AS_NUMBER(pop()));
+        auto op1 = (int)(AS_NUMBER(pop()));
+        push(NUMBER((double)(op1 % op2)));
+        break;
+      }
 
       default:
         DIE << "Unknown opcode: " << std::hex << (int)opcode;

@@ -8,7 +8,7 @@
       "type": "lldb",
       "request": "launch",
       "name": "Debug",
-      "program": "${workspaceFolder}/build/jelly-vm",
+      "program": "${workspaceFolder}/build/src/jelly",
       "args": [],
       "cwd": "${workspaceFolder}"
     }
