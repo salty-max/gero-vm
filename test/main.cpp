@@ -3,6 +3,7 @@
 #include "binary-math-test.h"
 #include "comparison-test.h"
 #include "expression-test.h"
+#include "global-variable.h"
 #include "if-branch-test.h"
 #include "string-test.h"
 

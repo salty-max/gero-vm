@@ -10,7 +10,9 @@
 
 #include "../Logger.h"
 #include "../bytecode/OpCode.h"
+#include "../disassembler/JellyDisassembler.h"
 #include "../parser/JellyParser.h"
+#include "../vm/Global.h"
 #include "../vm/JellyValue.h"
 
 using syntax::JellyParser;
@@ -44,7 +46,9 @@ using syntax::JellyParser;
  */
 class JellyCompiler {
 public:
-  JellyCompiler() {}
+  JellyCompiler(std::shared_ptr<Global> global)
+      : global(global),
+        disassembler(std::make_unique<JellyDisassembler>(global)) {}
 
   /**
    * Main compile API.
@@ -96,8 +100,17 @@ public:
         emit(OP_CONST);
         emit(booleanConstIdx(exp.string == "true" ? true : false));
       } else {
-        // TODO:
-        DIE << "ExpType::SYMBOL: Unimplemented.";
+        /**
+         * Variables.
+         */
+
+        // 1. Global vars.
+        if (!global->exists(exp.string)) {
+          DIE << "[JellyCompiler]: Reference error: " << exp.string;
+        }
+
+        emit(OP_GET_GLOBAL);
+        emit(global->getGlobalIndex(exp.string));
       }
       break;
 
@@ -185,10 +198,55 @@ public:
           auto endBranchAddr = getOffset();
           patchJumpAddress(endAddr, endBranchAddr);
         }
+
+        /**
+         * -------------------------------
+         * Variable declaration (var x 2).
+         */
+        else if (op == "var") {
+          auto varName = exp.list[1].string;
+          // 1. Global vars.
+          global->define(varName);
+
+          // Initializer
+          gen(exp.list[2]);
+
+          emit(OP_SET_GLOBAL);
+          emit(global->getGlobalIndex(varName));
+
+          // 2. Local vars. (TODO)
+        }
+
+        /**
+         * -------------------------------
+         * Variable update (set x 2).
+         */
+        else if (op == "set") {
+          // 1. Global vars.
+          auto varName = exp.list[1].string;
+
+          // Initializer.
+          gen(exp.list[2]);
+
+          auto globalIndex = global->getGlobalIndex(varName);
+          if (globalIndex == -1) {
+            DIE << "Reference error: " << varName << " is not defined.";
+          }
+
+          emit(OP_SET_GLOBAL);
+          emit(globalIndex);
+
+          // 2. Local vars. (TODO)
+        }
       }
       break;
     }
   }
+
+  /**
+   * Disassembles all compilation units.
+   */
+  void disassembleBytecode() { disassembler->disassemble(co); }
 
 private:
   /**
@@ -239,6 +297,16 @@ private:
     writeByteAtOffset(offset, (value >> 8) & 0xff);
     writeByteAtOffset(offset + 1, value & 0xff);
   }
+
+  /**
+   * Global object.
+   */
+  std::shared_ptr<Global> global;
+
+  /**
+   * Disassembler.
+   */
+  std::unique_ptr<JellyDisassembler> disassembler;
 
   /**
    * Compiling code object.

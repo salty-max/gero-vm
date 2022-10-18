@@ -9,6 +9,7 @@
 #include "../bytecode/OpCode.h"
 #include "../compiler/JellyCompiler.h"
 #include "../parser/JellyParser.h"
+#include "./Global.h"
 #include "./JellyValue.h"
 
 using syntax::JellyParser;
@@ -84,8 +85,11 @@ using syntax::JellyParser;
 class JellyVM {
 public:
   JellyVM()
-      : parser(std::make_unique<JellyParser>()),
-        compiler(std::make_unique<JellyCompiler>()) {}
+      : global(std::make_shared<Global>()),
+        parser(std::make_unique<JellyParser>()),
+        compiler(std::make_unique<JellyCompiler>(global)) {
+    setGlobalVariables();
+  }
 
   /**
    * Pushes a value onto the stack.
@@ -113,6 +117,17 @@ public:
   }
 
   /**
+   * Peeks an element from the stack.
+   */
+  JellyValue peek(size_t offset = 0) {
+    if (stack.size() == 0) {
+      DIE << "peek(): stack underflow.\n";
+    }
+
+    return *(sp - 1 - offset);
+  }
+
+  /**
    * Executes a program.
    */
   JellyValue exec(const std::string &program) {
@@ -127,6 +142,9 @@ public:
 
     // Set stack pointer to the beginning.
     sp = &stack[0];
+
+    // Debug disassembly
+    compiler->disassembleBytecode();
 
     return eval();
   }
@@ -143,25 +161,25 @@ public:
         return pop();
 
       // ------------------------
-      // Constants
+      // Constants.
       case OP_CONST:
         push(GET_CONST());
         break;
 
       // ------------------------
-      // Math ops
+      // Math ops.
       case OP_ADD: {
         auto op2 = pop();
         auto op1 = pop();
 
-        // Numeric addition:
+        // Numeric addition.
         if (IS_NUMBER(op1) && IS_NUMBER(op2)) {
           auto v1 = AS_NUMBER(op1);
           auto v2 = AS_NUMBER(op2);
           push(NUMBER(v1 + v2));
         }
 
-        // String concatenation
+        // String concatenation.
         else if (IS_STRING(op1) && IS_STRING(op2)) {
           auto s1 = AS_CPPSTRING(op1);
           auto s2 = AS_CPPSTRING(op2);
@@ -189,7 +207,7 @@ public:
       }
 
       // ------------------------
-      // Comparison
+      // Comparison.
       case OP_COMPARE: {
         auto op = READ_BYTE();
         auto op2 = pop();
@@ -208,7 +226,7 @@ public:
       }
 
       // ------------------------
-      // Conditional jump
+      // Conditional jump.
       case OP_JMP_IF_FALSE: {
         auto cond = AS_BOOLEAN(pop());
 
@@ -222,9 +240,26 @@ public:
       }
 
       // ------------------------
-      // Conditional jump
+      // Unconditional jump.
       case OP_JMP: {
         ip = TO_ADDRESS(READ_SHORT());
+        break;
+      }
+
+      // ------------------------
+      // Global variable value.
+      case OP_GET_GLOBAL: {
+        auto globalIndex = READ_BYTE();
+        push(global->get(globalIndex).value);
+        break;
+      }
+
+        // ------------------------
+        // Global variable assignment.
+      case OP_SET_GLOBAL: {
+        auto globalIndex = READ_BYTE();
+        auto value = peek(0);
+        global->set(globalIndex, value);
         break;
       }
 
@@ -233,6 +268,20 @@ public:
       }
     }
   }
+
+  /**
+   * Sets up global variables and functions.
+   */
+  void setGlobalVariables() {
+    global->addConst("PI", 3.141592653589793);
+    global->addConst("THE_ANSWER", 42);
+    global->addConst("TOTO", 2);
+  }
+
+  /**
+   * Global object.
+   */
+  std::shared_ptr<Global> global;
 
   /**
    * Parser.
