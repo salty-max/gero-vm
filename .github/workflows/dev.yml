@@ -145,7 +145,5 @@ jobs:
           message(FATAL_ERROR "Bad exit status")
         endif()
     
-    - name: Test
-      working-directory: ../../build
-      run: |
-        make jelly_vm_tst; __tests__/jelly_vm_tst 
+    - name: Run tests
+      run: /home/runner/work/jelly-vm-source/jelly-vm-source/build/__tests__/jelly_vm_tst
