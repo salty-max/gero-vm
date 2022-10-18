@@ -41,7 +41,8 @@ jobs:
         - {
             name: "macOS Latest Clang", artifact: "macOS.tar.xz",
             os: macos-latest,
-            build_type: "Release", cc: "clang", cxx: "clang++"
+            build_type: "Release", cc: "clang", cxx: "clang++",
+            runner_path: "/Users/runner"
           }
     steps:
     - uses: actions/checkout@v3
@@ -146,4 +147,4 @@ jobs:
         endif()
     
     - name: Run tests
-      run: /home/runner/work/jelly-vm-source/jelly-vm-source/build/__tests__/jelly_vm_tst
+      run: ${{ matrix.config.runner_path }}/work/jelly-vm-source/jelly-vm-source/build/__tests__/jelly_vm_tst
