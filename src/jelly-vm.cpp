@@ -11,7 +11,20 @@ int main(int argc, char const *argv[]) {
 
   auto result = vm.exec(R"(
     (var x 5)
-    (set x (* x x))
+    (set x (* x PI))
+
+    (begin
+      (var x 100)
+
+      (begin
+        (var x 200)
+        (set x (* x x))
+        x
+      )
+
+      x
+    )
+
     x
   )");
 

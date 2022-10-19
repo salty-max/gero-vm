@@ -42,3 +42,20 @@ TEST(BlockTest, GlobalBlockWithMultipleExpression) {
 
   EXPECT_EQ(AS_NUMBER(result), 25);
 }
+
+TEST(BlockTest, NestedBlocks) {
+  JellyVM vm;
+
+  auto result = vm.exec(R"(
+    (var x 5)
+
+    (begin
+      (var x 10)
+      x
+    )
+
+    x
+  )");
+
+  EXPECT_EQ(AS_NUMBER(result), 5);
+}

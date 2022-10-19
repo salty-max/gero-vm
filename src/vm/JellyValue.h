@@ -45,8 +45,16 @@ struct JellyValue {
   };
 };
 
+struct LocalVar {
+  std::string name;
+  size_t scope;
+};
+
 /**
  * Code object.
+ *
+ * Contains compiling bytecode, locals and other
+ * state needed for function execution.
  */
 struct CodeObject : public Object {
   CodeObject(const std::string &name) : Object(ObjectType::CODE), name(name) {}
@@ -64,6 +72,38 @@ struct CodeObject : public Object {
    * Bytecode.
    */
   std::vector<uint8_t> code;
+
+  /**
+   * Current scope level.
+   */
+  size_t scopeLevel = 0;
+
+  /**
+   * Local variables and functions.
+   */
+  std::vector<LocalVar> locals;
+
+  /**
+   * Adds a local var with current scope level.
+   */
+  void addLocal(const std::string &name) {
+    locals.push_back({name, scopeLevel});
+  }
+
+  /**
+   * Get local index.
+   */
+  int getLocalIndex(const std::string &name) {
+    if (locals.size() > 0) {
+      for (auto i = (int)locals.size() - 1; i >= 0; i--) {
+        if (locals[i].name == name) {
+          return i;
+        }
+      }
+    }
+
+    return -1;
+  }
 };
 
 // ------------------------------------------------------------

@@ -117,6 +117,17 @@ public:
   }
 
   /**
+   * Pops multiple values from the stack.
+   */
+  void popN(size_t count) {
+    if (stack.size() == 0) {
+      DIE << "popN(): stack underflow.\n";
+    }
+
+    sp -= count;
+  }
+
+  /**
    * Peeks an element from the stack.
    */
   JellyValue peek(size_t offset = 0) {
@@ -142,6 +153,9 @@ public:
 
     // Set stack pointer to the beginning.
     sp = &stack[0];
+
+    // Init the base pointer.
+    bp = sp;
 
     // Debug disassembly
     compiler->disassembleBytecode();
@@ -264,10 +278,55 @@ public:
       }
 
       // ------------------------
+      // Local variable value.
+      case OP_GET_LOCAL: {
+        auto localIndex = READ_BYTE();
+
+        if (localIndex < 0 || localIndex >= stack.size()) {
+          DIE << "OP_GET_LOCAL: invalid variable index: " << (int)localIndex;
+        }
+        push(bp[localIndex]);
+
+        break;
+      }
+
+      // ------------------------
+      // Local variable assignment.
+      case OP_SET_LOCAL: {
+        auto localIndex = READ_BYTE();
+
+        if (localIndex < 0 || localIndex >= stack.size()) {
+          DIE << "OP_GET_LOCAL: invalid variable index: " << (int)localIndex;
+        }
+
+        auto value = peek(0);
+        bp[localIndex] = value;
+        break;
+      }
+
+      // ------------------------
       // Stack manipulation.
       case OP_POP:
         pop();
         break;
+
+      // ------------------------
+      // Scope exit (clean up variables).
+      //
+      // NOTE: Variables sit right below the result of a block,
+      // so we move the result below, which will be the new top
+      // after popping the variables.
+      case OP_SCOPE_EXIT: {
+        // How many vars to pop.
+        auto count = READ_BYTE();
+
+        // Move the result above the vars.
+        *(sp - 1 - count) = peek(0);
+
+        // Pop the vars.
+        popN(count);
+        break;
+      }
 
       default:
         DIE << "Unknown opcode: " << std::hex << (int)opcode;
@@ -308,6 +367,11 @@ public:
    * Stack pointer.
    */
   JellyValue *sp;
+
+  /**
+   * Base pointer (Frame pointer).
+   */
+  JellyValue *bp;
 
   /**
    * Operands stack.

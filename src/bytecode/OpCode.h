@@ -52,9 +52,24 @@
 #define OP_SET_GLOBAL 0x0B
 
 /**
- * Pops a vlue from the stack.
+ * Returns local variable.
  */
-#define OP_POP 0x0C
+#define OP_GET_LOCAL 0x0C
+
+/**
+ * Sets local variable value.
+ */
+#define OP_SET_LOCAL 0x0D
+
+/**
+ * Pops a value from the stack.
+ */
+#define OP_POP 0x0E
+
+/**
+ * Exists current scope
+ */
+#define OP_SCOPE_EXIT 0x0F
 
 // -----------------------------------------------------------
 
@@ -76,9 +91,12 @@ std::string opcodeToString(uint8_t opcode) {
     OP_STR(JMP);
     OP_STR(GET_GLOBAL);
     OP_STR(SET_GLOBAL);
+    OP_STR(GET_LOCAL);
+    OP_STR(SET_LOCAL);
     OP_STR(POP);
+    OP_STR(SCOPE_EXIT);
   default:
-    DIE << "opcodeToString: unknown opcode: " << (int)opcode;
+    DIE << "opcodeToString: unknown opcode: " << std::hex << (int)opcode;
   }
 
   return "Unknown"; // Unreachable

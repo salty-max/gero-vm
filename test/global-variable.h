@@ -46,6 +46,8 @@ TEST(GlobalVariableTest, SetGlobalVariable) {
 
   auto result = vm.exec(R"(
     (var MARIGNAN 1515)
+
+    MARIGNAN
   )");
 
   EXPECT_EQ(AS_NUMBER(result), 1515);
@@ -56,6 +58,8 @@ TEST(GlobalVariableTest, SetGlobalVariableWithComplexExpression) {
 
   auto result = vm.exec(R"(
     (var HELLO_WORLD (+ "Hello " "world!"))
+
+    HELLO_WORLD
   )");
 
   EXPECT_EQ(AS_CPPSTRING(result), "Hello world!");
@@ -66,6 +70,8 @@ TEST(GlobalVariableTest, UpdateGlobalVariable) {
 
   auto result = vm.exec(R"(
     (set VERSION 0.2)
+
+    VERSION
   )");
 
   EXPECT_EQ(AS_NUMBER(result), 0.2);

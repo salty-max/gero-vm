@@ -33,7 +33,7 @@ using syntax::JellyParser;
     co->constants.push_back(allocator(value));                                 \
   } while (false)
 
-// Generic binary operator: (+ 1 2) OP_CONST, OP_CONST, OP_ADD
+// Generic binary operation: (+ 1 2) OP_CONST, OP_CONST, OP_ADD
 #define GEN_BINARY_OP(op)                                                      \
   do {                                                                         \
     gen(exp.list[1]);                                                          \
@@ -103,14 +103,25 @@ public:
         /**
          * Variables.
          */
+        auto varName = exp.string;
 
-        // 1. Global vars.
-        if (!global->exists(exp.string)) {
-          DIE << "[JellyCompiler]: Reference error: " << exp.string;
+        // 1. Local vars.
+        auto localIndex = co->getLocalIndex(varName);
+
+        if (localIndex != -1) {
+          emit(OP_GET_LOCAL);
+          emit(localIndex);
         }
 
-        emit(OP_GET_GLOBAL);
-        emit(global->getGlobalIndex(exp.string));
+        // 2. Global vars.
+        else {
+          if (!global->exists(varName)) {
+            DIE << "[JellyCompiler]: Reference error: " << varName;
+          }
+
+          emit(OP_GET_GLOBAL);
+          emit(global->getGlobalIndex(varName));
+        }
       }
       break;
 
@@ -205,16 +216,24 @@ public:
          */
         else if (op == "var") {
           auto varName = exp.list[1].string;
-          // 1. Global vars.
-          global->define(varName);
 
           // Initializer
           gen(exp.list[2]);
 
-          emit(OP_SET_GLOBAL);
-          emit(global->getGlobalIndex(varName));
+          // 1. Global vars.
+          if (isGlobalScope()) {
+            global->define(varName);
 
-          // 2. Local vars. (TODO)
+            emit(OP_SET_GLOBAL);
+            emit(global->getGlobalIndex(varName));
+          }
+
+          // 2. Local vars.
+          else {
+            co->addLocal(varName);
+            emit(OP_SET_LOCAL);
+            emit(co->getLocalIndex(varName));
+          }
         }
 
         /**
@@ -222,21 +241,30 @@ public:
          * Variable update (set x 2).
          */
         else if (op == "set") {
-          // 1. Global vars.
           auto varName = exp.list[1].string;
 
-          // Initializer.
+          // Value.
           gen(exp.list[2]);
 
-          auto globalIndex = global->getGlobalIndex(varName);
-          if (globalIndex == -1) {
-            DIE << "Reference error: " << varName << " is not defined.";
+          // 1. Local vars.
+          auto localIndex = co->getLocalIndex(varName);
+
+          if (localIndex != -1) {
+            emit(OP_SET_LOCAL);
+            emit(localIndex);
           }
 
-          emit(OP_SET_GLOBAL);
-          emit(globalIndex);
+          // 2. Global vars.
+          else {
+            auto globalIndex = global->getGlobalIndex(varName);
+            if (globalIndex == -1) {
+              DIE << "Reference error: " << varName << " is not defined.";
+            }
 
-          // 2. Local vars. (TODO)
+            emit(OP_SET_GLOBAL);
+            emit(globalIndex);
+          }
+
         }
 
         /**
@@ -244,19 +272,29 @@ public:
          * Blocks (begin ).
          */
         else if (op == "begin") {
+          // Increase scope level by 1.
+          scopeEnter();
+
           // Compile each expression within the block.
           for (auto i = 1; i < exp.list.size(); i++) {
             // The value of the last expression is kept
             // on the stack as the final result.
             bool isLast = i == exp.list.size() - 1;
 
+            // Local variable or function (should not pop).
+            auto isLocalDeclaration =
+                isDeclaration(exp.list[i]) && !isGlobalScope();
+
             // Generate expression code.
             gen(exp.list[i]);
 
-            if (!isLast) {
+            if (!isLast && !isLocalDeclaration) {
               emit(OP_POP);
             }
           }
+
+          // Return to previous scope level.
+          scopeExit();
         }
       }
       break;
@@ -269,6 +307,66 @@ public:
   void disassembleBytecode() { disassembler->disassemble(co); }
 
 private:
+  /**
+   * Enters a new scope.
+   */
+  void scopeEnter() { co->scopeLevel++; }
+
+  /**
+   * Returns to previous scope level
+   */
+  void scopeExit() {
+    // Pops vars from the stack if they were declared
+    // within this specific scope.
+    auto varsCount = getVarsCountOnScopeExit();
+
+    if (varsCount > 0) {
+      emit(OP_SCOPE_EXIT);
+      emit(varsCount);
+    }
+
+    co->scopeLevel--;
+  }
+
+  /**
+   * Checks whether it is the global scope.
+   */
+  bool isGlobalScope() { return co->name == "main" && co->scopeLevel == 1; }
+
+  /**
+   * Checkes whether the expression is a declaration
+   */
+  bool isDeclaration(const Exp &exp) { return isVarDeclaration(exp); }
+
+  /**
+   * (var <name> <value>)
+   */
+  bool isVarDeclaration(const Exp &exp) { return isTaggedList(exp, "var"); }
+
+  /**
+   * Tagged lists.
+   */
+  bool isTaggedList(const Exp &exp, const std::string &tag) {
+    return exp.type == ExpType::LIST && exp.list[0].type == ExpType::SYMBOL &&
+           exp.list[0].string == tag;
+  }
+
+  /**
+   * Number of local vars in this scope.
+   */
+  size_t getVarsCountOnScopeExit() {
+    auto varsCount = 0;
+
+    if (co->locals.size() > 0) {
+      while (co->locals.back().scope == co->scopeLevel) {
+        co->locals.pop_back();
+        varsCount++;
+      }
+    }
+
+    return varsCount;
+  }
+
   /**
    * Returns current bytecode offset.
    */
