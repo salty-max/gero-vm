@@ -10,22 +10,15 @@ int main(int argc, char const *argv[]) {
   JellyVM vm;
 
   auto result = vm.exec(R"(
-    (var x 5)
-    (set x (* x PI))
+    (var count 0)
 
-    (begin
-      (var x 100)
-
+    (for (var i 10) (> i 0) (set i (- i 1))
       (begin
-        (var x 200)
-        (set x (* x x))
-        x
+        (set count (+ count 1))
       )
-
-      x
     )
 
-    x
+    count
   )");
 
   log(result);

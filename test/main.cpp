@@ -6,6 +6,7 @@
 #include "expression-test.h"
 #include "global-variable.h"
 #include "if-branch-test.h"
+#include "loop-test.h"
 #include "string-test.h"
 
 int main(int argc, char *argv[]) {

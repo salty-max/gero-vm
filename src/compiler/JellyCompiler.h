@@ -212,6 +212,82 @@ public:
 
         /**
          * -------------------------------
+         * While loop (while <test> <body>).
+         */
+        else if (op == "while") {
+          auto loopStartAddr = getOffset();
+
+          // Emit <test>
+          gen(exp.list[1]);
+
+          // <test> is false, loop ends. Jumps over the body.
+          emit(OP_JMP_IF_FALSE);
+
+          // 2-byte address
+          emit(0);
+          emit(0);
+
+          auto loopEndJmpAddr = getOffset() - 2;
+
+          // Emit <body>
+          gen(exp.list[2]);
+
+          // Goto loop start.
+          emit(OP_JMP);
+
+          emit(0);
+          emit(0);
+
+          patchJumpAddress(getOffset() - 2, loopStartAddr);
+
+          // Patch the end.
+          auto loopEndAddr = getOffset() + 1;
+          patchJumpAddress(loopEndJmpAddr, loopEndAddr);
+        }
+
+        /**
+         * -------------------------------
+         * For loop (for <init> <test> <modifier> <body>).
+         */
+        else if (op == "for") {
+          // Emit initialize
+          gen(exp.list[1]);
+
+          auto loopStartAddr = getOffset();
+
+          // Emit <test>
+          gen(exp.list[2]);
+
+          // <test> is false, loop ends. Jumps over the body.
+          emit(OP_JMP_IF_FALSE);
+
+          // 2-byte address
+          emit(0);
+          emit(0);
+
+          auto loopEndJmpAddr = getOffset() - 2;
+
+          // Emit <body>
+          gen(exp.list[4]);
+
+          // Emit <modifier>
+          gen(exp.list[3]);
+
+          // Goto loop start.
+          emit(OP_JMP);
+
+          emit(0);
+          emit(0);
+
+          patchJumpAddress(getOffset() - 2, loopStartAddr);
+
+          // Patch the end.
+          auto loopEndAddr = getOffset() + 1;
+          patchJumpAddress(loopEndJmpAddr, loopEndAddr);
+        }
+
+        /**
+         * -------------------------------
          * Variable declaration (var x 2).
          */
         else if (op == "var") {
