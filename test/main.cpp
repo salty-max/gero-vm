@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "binary-math-test.h"
+#include "block-test.h"
 #include "comparison-test.h"
 #include "expression-test.h"
 #include "global-variable.h"

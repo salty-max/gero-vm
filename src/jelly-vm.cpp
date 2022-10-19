@@ -10,7 +10,9 @@ int main(int argc, char const *argv[]) {
   JellyVM vm;
 
   auto result = vm.exec(R"(
-    THE_ANSWER
+    (var x 5)
+    (set x (* x x))
+    x
   )");
 
   log(result);

@@ -51,6 +51,11 @@
  */
 #define OP_SET_GLOBAL 0x0B
 
+/**
+ * Pops a vlue from the stack.
+ */
+#define OP_POP 0x0C
+
 // -----------------------------------------------------------
 
 #define OP_STR(op)                                                             \
@@ -71,6 +76,7 @@ std::string opcodeToString(uint8_t opcode) {
     OP_STR(JMP);
     OP_STR(GET_GLOBAL);
     OP_STR(SET_GLOBAL);
+    OP_STR(POP);
   default:
     DIE << "opcodeToString: unknown opcode: " << (int)opcode;
   }

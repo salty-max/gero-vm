@@ -132,7 +132,7 @@ public:
    */
   JellyValue exec(const std::string &program) {
     // 1. Parse the program.
-    auto ast = parser->parse(program);
+    auto ast = parser->parse("(begin " + program + ")");
 
     // 2.Compile program to Jelly bytecode.
     co = compiler->compile(ast);
@@ -254,14 +254,20 @@ public:
         break;
       }
 
-        // ------------------------
-        // Global variable assignment.
+      // ------------------------
+      // Global variable assignment.
       case OP_SET_GLOBAL: {
         auto globalIndex = READ_BYTE();
         auto value = peek(0);
         global->set(globalIndex, value);
         break;
       }
+
+      // ------------------------
+      // Stack manipulation.
+      case OP_POP:
+        pop();
+        break;
 
       default:
         DIE << "Unknown opcode: " << std::hex << (int)opcode;
@@ -275,7 +281,7 @@ public:
   void setGlobalVariables() {
     global->addConst("PI", 3.141592653589793);
     global->addConst("THE_ANSWER", 42);
-    global->addConst("TOTO", 2);
+    global->addConst("VERSION", 0.1);
   }
 
   /**

@@ -238,6 +238,26 @@ public:
 
           // 2. Local vars. (TODO)
         }
+
+        /**
+         * -------------------------------
+         * Blocks (begin ).
+         */
+        else if (op == "begin") {
+          // Compile each expression within the block.
+          for (auto i = 1; i < exp.list.size(); i++) {
+            // The value of the last expression is kept
+            // on the stack as the final result.
+            bool isLast = i == exp.list.size() - 1;
+
+            // Generate expression code.
+            gen(exp.list[i]);
+
+            if (!isLast) {
+              emit(OP_POP);
+            }
+          }
+        }
       }
       break;
     }
